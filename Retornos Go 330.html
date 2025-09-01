@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    
+    <style>
+        html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
+        #map { position:absolute; top:0; bottom:0; right:0; left:0; }
+
+        /* Botão flutuante */
+        .legend-toggle {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+
+        /* Caixa da legenda */
+        .legend-box {
+            display: block; /* começa ABERTA */
+            position: absolute;
+            bottom: 65px;
+            left: 20px;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.3);
+            font-size: 14px;
+            line-height: 1.4;
+            z-index: 1000;
+        }
+
+        .legend-box h6 {
+            margin: 0 0 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .legend-box i {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.9;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <!-- Botão de abrir/fechar legenda -->
+    <button class="btn btn-primary legend-toggle" onclick="toggleLegend()" id="legendBtn">
+        ❌ Fechar legenda
+    </button>
+
+    <!-- Caixa da legenda -->
+    <div class="legend-box" id="legendBox">
+        <h6>Legenda</h6>
+        <div><i style="background: blue"></i> Retorno (vai para Catalão)</div>
+        <div><i style="background: green"></i> Retorno (vem de Catalão)</div>
+        <div><i style="background: red"></i> Trevo</div>
+    </div>
+
+<script>
+    var map = L.map("map", {
+        center: [-18.07, -47.98],
+        zoom: 12,
+    });
+
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    // F. adicionar marcadores
+    function addMarker(lat, lng, tipo) {
+        var marker = L.marker([lat, lng], {
+            icon: L.AwesomeMarkers.icon({
+                markerColor: tipo.includes("Trevo") ? "red" : (tipo.includes("vem") ? "green" : "blue"),
+                icon: "info-sign",
+                prefix: "glyphicon",
+                iconColor: "white"
+            })
+        }).addTo(map);
+
+        var mapsLink = `https://www.google.com/maps?q=${lat},${lng}`;
+
+        marker.bindPopup(`<b>${tipo}</b><br><a href="${mapsLink}" target="_blank">Ver no Maps</a>`);
+    }
+
+    //  pontos
+    addMarker(-18.036319, -47.990833, "Retorno (vai para Catalão)");
+    addMarker(-18.099789, -47.976125, "Retorno (vem de Catalão)");
+    addMarker(-18.105181, -47.973119, "Retorno (vai para Catalão)");
+    addMarker(-18.131142, -47.958772, "Trevo");
+    addMarker(-18.073000, -47.989661, "Retorno (vai para Catalão)");
+    addMarker(-18.067000, -47.990486, "Retorno (vem de Catalão)");
+    addMarker(-18.031475, -47.993931, "Retorno (vem de Catalão)");
+    addMarker(-18.033983, -47.992466, "Trevo");
+
+    // Função para abrir/fechar a legenda 
+    function toggleLegend() {
+        var box = document.getElementById("legendBox");
+        var btn = document.getElementById("legendBtn");
+
+        if (box.style.display === "none" || box.style.display === "") {
+            box.style.display = "block";
+            btn.innerHTML = "❌ Fechar legenda";
+        } else {
+            box.style.display = "none";
+            btn.innerHTML = "📌 Abrir legenda";
+        }
+    }
+</script>
+</body>
+</html>
