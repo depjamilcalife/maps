@@ -1,125 +1,170 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
-    
-    <style>
-        html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
-        #map { position:absolute; top:0; bottom:0; right:0; left:0; }
+  <meta charset="utf-8" />
+  <title>Mapa de Retornos - Visual Sério</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Leaflet e plugins -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
 
-        /* Botão flutuante */
-        .legend-toggle {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            z-index: 1000;
-        }
+  <style>
+    html, body { width: 100vw; height: 100vh; margin: 0; padding: 0;}
+    #map { position:absolute; top:0; bottom:0; right:0; left:0; }
 
-        /* Caixa da legenda */
-        .legend-box {
-            display: block; /* começa ABERTA */
-            position: absolute;
-            bottom: 65px;
-            left: 20px;
-            background: white;
-            padding: 10px 15px;
-            border-radius: 8px;
-            box-shadow: 0 0 8px rgba(0,0,0,0.3);
-            font-size: 14px;
-            line-height: 1.4;
-            z-index: 1000;
-        }
-
-        .legend-box h6 {
-            margin: 0 0 5px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .legend-box i {
-            width: 18px;
-            height: 18px;
-            float: left;
-            margin-right: 8px;
-            opacity: 0.9;
-            border-radius: 4px;
-        }
-    </style>
+    .legend-toggle {
+      position: absolute;
+      bottom: 18px;
+      left: 24px;
+      z-index: 1000;
+      font-size: 15px;
+      font-weight: 500;
+      border-radius: 4px;
+      box-shadow: none;
+      border: 1px solid #a8b9c9 !important;
+      background: #fff;
+      color: #3a495a;
+      padding: 5px 14px;
+      transition: .2s;
+    }
+    .legend-toggle:hover {
+      background: #ebf1f7 !important;
+      color: #13325c;
+      border-color: #4977a4 !important;
+    }
+    .legend-box {
+      display: block; /* Começa aberta */
+      position: absolute;
+      bottom: 60px;
+      left: 24px;
+      background: #f8fafc;
+      padding: 10px 18px 12px 14px;
+      border-radius: 4px;
+      border: 1px solid #c9d1d9;
+      box-shadow: 0 2px 11px rgba(30,40,60,0.09);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 15px;
+      color: #243646;
+      min-width: 175px;
+      z-index: 1000;
+    }
+    .legend-box h6 {
+      margin: 0 0 6px 0;
+      font-weight: 600;
+      color: #2b4155;
+      font-size: 15px;
+      letter-spacing: 0.01em;
+    }
+    .legend-box i {
+      width: 15px;
+      height: 15px;
+      float: left;
+      margin-right: 7px;
+      opacity: 0.85;
+      border-radius: 2px;
+      border: 1px solid #bbc8d4;
+    }
+    @media (max-width: 600px) {
+      .legend-box {
+        left: 50%;
+        transform: translateX(-50%);
+        min-width: 120px;
+        font-size: 14px;
+      }
+      .legend-toggle {
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 14px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <div id="map"></div>
+  <div id="map"></div>
 
-    <!-- Botão de abrir/fechar legenda -->
-    <button class="btn btn-primary legend-toggle" onclick="toggleLegend()" id="legendBtn">
-        ❌ Fechar legenda
-    </button>
+  <!-- Botão de abrir/fechar legenda -->
+  <button class="btn legend-toggle" onclick="toggleLegend()" id="legendBtn">
+      Fechar legenda
+  </button>
 
-    <!-- Caixa da legenda -->
-    <div class="legend-box" id="legendBox">
-        <h6>Legenda</h6>
-        <div><i style="background: blue"></i> Retorno (vai para Catalão)</div>
-        <div><i style="background: green"></i> Retorno (vem de Catalão)</div>
-        <div><i style="background: red"></i> Trevo</div>
-    </div>
+  <!-- Caixa da legenda -->
+  <div class="legend-box" id="legendBox">
+    <h6>Legenda</h6>
+    <div style="clear:both"><i style="background: #4977a4"></i> Retorno IPA → CAT</div>
+    <div style="clear:both"><i style="background: #53ab74"></i> Retorno CAT → IPA</div>
+    <div style="clear:both"><i style="background: #b85c52"></i> Trevo</div>
+  </div>
 
-<script>
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+  
+  <script>
+    // Inicializa o mapa
     var map = L.map("map", {
-        center: [-18.07, -47.98],
-        zoom: 12,
+      center: [-18.07, -47.98],
+      zoom: 12,
     });
 
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
-    // F. adicionar marcadores
+    // Função para adicionar marcadores
     function addMarker(lat, lng, tipo) {
-        var marker = L.marker([lat, lng], {
-            icon: L.AwesomeMarkers.icon({
-                markerColor: tipo.includes("Trevo") ? "red" : (tipo.includes("vem") ? "green" : "blue"),
-                icon: "info-sign",
-                prefix: "glyphicon",
-                iconColor: "white"
-            })
-        }).addTo(map);
+      var markerColor;
+      if (tipo.includes("Trevo")) markerColor = "#b85c52";
+      else if (tipo.includes("CAT")) { // "CAT → IPA"
+        if (tipo.includes("IPA")) markerColor = "#53ab74"; // CAT -> IPA
+        else markerColor = "#4977a4"; // IPA -> CAT
+      } else markerColor = "#4977a4";
 
-        var mapsLink = `https://www.google.com/maps?q=${lat},${lng}`;
+      var awesomeMarkerColor;
+      if (tipo === "Trevo") awesomeMarkerColor = "red";
+      else if (tipo === "Retorno CAT → IPA") awesomeMarkerColor = "green";
+      else awesomeMarkerColor = "blue";
 
-        marker.bindPopup(`<b>${tipo}</b><br><a href="${mapsLink}" target="_blank">Ver no Maps</a>`);
+      var marker = L.marker([lat, lng], {
+        icon: L.AwesomeMarkers.icon({
+          markerColor: awesomeMarkerColor,
+          icon: "info-sign",
+          prefix: "glyphicon",
+          iconColor: "white"
+        })
+      }).addTo(map);
+
+      var mapsLink = `https://www.google.com/maps?q=${lat},${lng}`;
+      marker.bindPopup(`<b>${tipo}</b><br><a href="${mapsLink}" target="_blank">Ver no Google Maps</a>`);
     }
 
-    //  pontos
-    addMarker(-18.036319, -47.990833, "Retorno (vai para Catalão)");
-    addMarker(-18.099789, -47.976125, "Retorno (vem de Catalão)");
-    addMarker(-18.105181, -47.973119, "Retorno (vai para Catalão)");
+    // Pontos de exemplo com nova legenda
+    addMarker(-18.036319, -47.990833, "Retorno IPA → CAT");
+    addMarker(-18.099789, -47.976125, "Retorno CAT → IPA");
+    addMarker(-18.105181, -47.973119, "Retorno IPA → CAT");
     addMarker(-18.131142, -47.958772, "Trevo");
-    addMarker(-18.073000, -47.989661, "Retorno (vai para Catalão)");
-    addMarker(-18.067000, -47.990486, "Retorno (vem de Catalão)");
-    addMarker(-18.031475, -47.993931, "Retorno (vem de Catalão)");
+    addMarker(-18.073000, -47.989661, "Retorno IPA → CAT");
+    addMarker(-18.067000, -47.990486, "Retorno CAT → IPA");
+    addMarker(-18.031475, -47.993931, "Retorno CAT → IPA");
     addMarker(-18.033983, -47.992466, "Trevo");
 
     // Função para abrir/fechar a legenda 
     function toggleLegend() {
-        var box = document.getElementById("legendBox");
-        var btn = document.getElementById("legendBtn");
-
-        if (box.style.display === "none" || box.style.display === "") {
-            box.style.display = "block";
-            btn.innerHTML = "❌ Fechar legenda";
-        } else {
-            box.style.display = "none";
-            btn.innerHTML = "📌 Abrir legenda";
-        }
+      var box = document.getElementById("legendBox");
+      var btn = document.getElementById("legendBtn");
+      if (box.style.display === "none" || box.style.display === "") {
+        box.style.display = "block";
+        btn.textContent = "Fechar legenda";
+      } else {
+        box.style.display = "none";
+        btn.textContent = "Abrir legenda";
+      }
     }
-</script>
+  </script>
 </body>
 </html>
-
